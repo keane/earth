@@ -26,12 +26,15 @@
             %span Modified
           %th.user
             %span User
+          %th.size
+            %span Size
+          %th.bar
         - else
           %th.name.Server
             %span Name
-        %th.size
-          %span Size
-        %th.bar/
+          %th.size
+            %span Size
+          %th.bar/
     %tbody
       %tr{:class => cycle('even', 'odd')}
         %td.icon.parent
@@ -55,12 +58,12 @@
       - unless @servers_and_bytes.blank?
         - @servers_and_bytes.sort!{|a,b| b[1] <=> a[1]}
         - max_size = @servers_and_bytes[0][1]
-        - units = ApplicationHelper::human_units_of max_size
+        - max_units = ApplicationHelper::human_units_of max_size
         - for server, size in @servers_and_bytes
           %tr{:class => cycle('even', 'odd')}
             %td.icon.Server= link_to "", :overwrite_params => {:server => server.name, :path => nil}
             %td.name.Server= link_to "<span>#{server.name}</span>", :overwrite_params => {:server => server.name, :path => nil}
-            %td.size.Server= link_to "<span>#{ApplicationHelper::human_size_in(units, size)} #{units}</span>", :overwrite_params => {:server => server.name, :path => nil}
+            %td.size.Server= link_to "<span>#{ApplicationHelper::human_size_in(max_units, size)} #{max_units}</span>", :overwrite_params => {:server => server.name, :path => nil}
             %td.bar.Server= link_to bar(size, max_size, :class => "bar"), :overwrite_params => {:server => server.name, :path => nil}
       
       - @directories_and_bytes ||= []
@@ -78,15 +81,16 @@
       - if max_size_directories > max_size_files
         - max_size = max_size_directories
       - else
-        - max_size = max_size_files
-      
-      - units = ApplicationHelper::human_units_of max_size
+        - max_size = max_size_files      
+      - max_units = ApplicationHelper::human_units_of max_size
+      - @directories_and_bytes.sort!{|a,b| a[0].name.downcase <=> b[0].name.downcase}
+      - @files.sort!{|a,b| a.name.downcase <=> b.name.downcase}
       - for directory, size in @directories_and_bytes
         %tr{:class => cycle('even', 'odd')}
           %td.icon.Dir= link_to "", :overwrite_params => {:path => directory.path}
           %td.name.Dir{ :colspan => "3" }
             = link_to(directory.name, {:overwrite_params => {:path => directory.path}})
-          %td.size.Dir= link_to "<span>#{ApplicationHelper::human_size_in(units, size)} #{units}</span>", :overwrite_params => {:path => directory.path}
+          %td.size.Dir= link_to "<span>#{ApplicationHelper::human_size_in(ApplicationHelper::human_units_of(directory.bytes), directory.bytes)} #{ApplicationHelper::human_units_of(directory.bytes)}</span>", :overwrite_params => {:path => directory.path}
           %td.bar.Dir= link_to bar(size, max_size, :class => "bar"), :overwrite_params => {:path => directory.path}
       - @files.each do |file|
         %tr{:class => cycle('even', 'odd')}
@@ -99,7 +103,7 @@
           %td.owner_user
             %span= file.user.name
           %td.size
-            %span= ApplicationHelper::human_size_in(units, file.bytes) + " " + units
+            %span= ApplicationHelper.human_size_in(ApplicationHelper.human_units_of(file.bytes), file.bytes) + " " + ApplicationHelper.human_units_of(file.bytes)
           %td.bar= bar file.bytes, max_size, :class => "filebar"
 
 - if @directory

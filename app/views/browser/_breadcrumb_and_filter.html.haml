@@ -35,6 +35,13 @@
           %td.first-row{:style => "text-align: right;"}= content_tag :label, "by filename:", "for" => "filter_filename"
           %td.first-row= text_field_tag "filter_filename", params[:filter_filename], :size => 15
         %tr
+          %td.first-row{:style => "text-align: right;"}= content_tag :label, "search:"
+          %td.first-row= text_field_tag "filter_searchname", params[:filter_searchname], :size => 15
+          %td.first-row{:style => "text-align: right;"}= content_tag :label, "by:"
+          %td.double-row{:colspan => "2"}
+            %select{:name => "filter_searchtype"} 
+              = options_for_select(@vector, "")        
+        %tr
           %td.last-row{:style => "text-align: right;"}= content_tag :label, "by user:", "for" => "filter_user"
           %td.last-row= text_field_tag "filter_user", params[:filter_user], :size => 15
           = auto_complete_stylesheet

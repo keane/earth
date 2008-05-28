@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+
 class GraphController < ApplicationController
 
   # TODO:
@@ -22,8 +23,9 @@ class GraphController < ApplicationController
   # in server view, show segments for directories
   # mark files with hatched background (optional; more generally, more useful color coding?)
   # fading edge one level darker (?)
-
-
+  #Keane: added for ticket 42
+  before_filter :load_context
+  
   include ApplicationHelper
 
   #
@@ -104,5 +106,9 @@ class GraphController < ApplicationController
       end
     end
   end
-
+  #Keane : added for ticket 42
+  protected
+  def load_context
+    @vector = RspMetadata.rsp_keys
+  end
 end

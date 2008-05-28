@@ -18,7 +18,7 @@ require 'csv'
 require 'pp'
 
 class BrowserController < ApplicationController
-  before_filter :load_context, :only => [:index,:flat,:show]
+	before_filter :load_context, :only => [:index,:flat,:show,:usages, :category]
   
   def index
     redirect_to :action => 'show'
@@ -142,6 +142,15 @@ class BrowserController < ApplicationController
     end
   end
   
+  # Ken: User space Usages (Ticket 66)
+  def usages
+    if @server == nil then
+      @users_space_usages = Earth::UsersSpaceUsage.find(:all)
+    else
+      @users_space_usages = Earth::UsersSpaceUsage.find(:all, :conditions => [ " server_id = ? ", @server.id ])
+    end
+  end
+
   def auto_complete_for_filter_user
     if User.ldap_configured?
       @users = User.find_matching(params[:filter_user])
@@ -149,9 +158,71 @@ class BrowserController < ApplicationController
     end
   end
   
+  #Keane: added for ticket 42
+  
+    def category
+
+
+    @show_hidden = params[:show_hidden]
+
+    @any_empty = false
+    @any_hidden = true
+    
+    @page_size = 25
+    @current_page = (params[:page] || 1).to_i
+
+    @default_sort_by = [ "size", nil, nil ]
+    @max_num_sort_criteria = 3
+
+    @default_order = {
+      "name" => "asc",
+      "path" => "asc",
+      "size" => "desc",
+      "modified" => "desc"
+    }
+
+    criteria_to_order_map = {
+      "name" => "lower(files.name)",
+      "path" => "lower(directories.path)",
+      "size" => "bytes",
+      "modified" => "modified"
+    }
+
+    order = nil
+    1.upto(@max_num_sort_criteria) do |sort_index|
+      criteria_name = params["sort#{sort_index}".to_sym] || @default_sort_by[sort_index - 1]      
+      if criteria_name
+        direction = params["order#{sort_index}".to_sym] || @default_order[criteria_name]
+
+        # avoid SQL injection
+        direction = "asc" if direction != "asc" and direction != "desc"
+
+        if order.nil?
+          order = ""
+        else
+          order += ", "
+        end
+        order += "#{criteria_to_order_map[criteria_name]} #{direction}"
+      end
+    end
+    
+
+      @files, file_count = SearchByKVPairs.search_by(params[:filter_searchtype], params[:filter_searchname])
+      @page_count = ((file_count || 0)+ @page_size - 1) / @page_size
+      
+
+  end
+  
+  
+  
   protected
   def load_context
     @server    = Earth::Server.find_by_name(params[:server])           if params[:server]
+
     @directory = @server.directories.find_by_path(params[:path] * '/') if @server && params[:path]
+
+    #Keane: added for ticket 42
+    @vector = RspMetadata.rsp_keys
+
   end
 end
