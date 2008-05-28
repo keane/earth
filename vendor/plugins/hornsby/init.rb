@@ -1,1 +1,0 @@
-require 'hornsby' if RAILS_ENV == 'test'
