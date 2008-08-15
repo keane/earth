@@ -1,0 +1,9 @@
+<h1>Welcome</h1>
+It's <%= Time.now %>
+<%= @name %>, have fun!
+      <p>
+        <%= link_to "List accounts", :controller => 'login', :action => 'list_accounts' %>
+        <br/>
+        <%= link_to "Add account",   :controller => 'login', :action => 'add_account' %>
+      </p>
+

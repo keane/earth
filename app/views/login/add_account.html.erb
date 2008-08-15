@@ -1,0 +1,27 @@
+<div class = "depot-form" >
+  <%= error_messages_for 'account' %>
+
+  <fieldset>
+    <legend>Enter Account Details</legend>
+
+    <% form_for :account do |form| %>
+      <p>
+        <label for="account_name" >Name:</label>
+        <%= form.text_field :name, :size => 40 %>
+      </p>
+
+      <p>
+        <label for="account_password" >Password:</label>
+        <%= form.password_field :password, :size => 40 %>
+      </p>
+
+      <p>
+        <label for="account_password_confirmation" >Confirm:</label>
+        <%= form.password_field :password_confirmation, :size => 40 %>
+      </p>
+
+      <%= submit_tag "Add Account" , :class => "submit" %>
+
+    <% end %>
+  </fieldset>
+</div>
