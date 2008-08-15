@@ -62,7 +62,7 @@ module BrowserHelper
 
     "<a href=\"#{url}\" class=\"sortable-column\">#{name}#{indicator}</a>"
   end
-  
+
   #keane: added for ticket 42
   def get_file_path(b)	  
 	  id=b.directory_id

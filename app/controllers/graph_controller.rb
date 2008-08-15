@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
 class GraphController < ApplicationController
 
   # TODO:
@@ -110,5 +109,12 @@ class GraphController < ApplicationController
   protected
   def load_context
     @vector = RspMetadata.rsp_keys
+        #Keane: added for ticket 43
+    if session[:account_id]
+      @account_flag = session[:account_name]
+    else
+      @account_flag = nil
+    end
   end
+  
 end

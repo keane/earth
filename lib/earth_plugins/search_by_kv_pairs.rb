@@ -1,6 +1,5 @@
 
 # Author::Qing Yang
-# Modified : Keane
  
 
 class SearchByKVPairs < EarthPlugin
@@ -14,25 +13,19 @@ class SearchByKVPairs < EarthPlugin
   # which have the key and value pairs like ("job","A").
   
   
-
-  def self.search_by(key,value)
+   
+   def self.search_by(key,value)
       result_set_files=Array.new   
       rsp_name=value
       rsp_name="*" if rsp_name.blank?
-      
+         
       rsp_key=key
       rsp_key="*" if rsp_key.blank?
       
-      joins = "JOIN directories ON files.directory_id = directories.id"
-      
       if rsp_name!="*"&& rsp_key!="*"
-	      mkvps=Earth::MetadataKeyValuePair.find(:all, 
-		:conditions=>   ["key LIKE ? and value LIKE ?",key,"%"+value+"%"]
-					  )
-	      #Keane : added for ticket 42
-              mkvps_count = Earth::MetadataKeyValuePair.count(:all,:conditions=>
-                                                  ["key LIKE ? and value LIKE ?",key,"%"+value+"%"]
-					  )
+        
+        mkvps=Earth::MetadataKeyValuePair.find(:all,:conditions=>
+                                                  ["key LIKE ? and value LIKE ?",key,"%"+value+"%"])
         mkvps.each do |m|
           id=m.file_id
           file=Earth::File.find(id)   
@@ -40,8 +33,8 @@ class SearchByKVPairs < EarthPlugin
         end
       end
        
-      #Keane : modified for ticket 42                                                          
-      return [result_set_files, mkvps_count]
+                                                                
+       return result_set_files
         
    end
 

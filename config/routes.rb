@@ -73,7 +73,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/browser/category.:format/:server*path', :controller => "browser", :action => "category",
     :requirements => {:server => hostname_regex}
     
-  
+    
   # setup controller "graph", action "show"
   map.connect '/graph/show', :controller => "graph", :action => "show"
   map.connect '/graph/show/:server', :controller => "graph", :action => "show",

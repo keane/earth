@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 require File.join('lib', 'earth_plugins', 'rsp_metadata.rb')
+require File.join('lib', 'earth_plugins', 'metadata.rb')
 
 class FileMonitor < EarthPlugin
   cattr_accessor :log_all_sql
@@ -258,23 +259,9 @@ private
       sleep 2.seconds.to_i
     end
   end
+
   
-  public
-  #allows saving of metadata information into database table
-  def save_file_metadata(file_id, metadata)
-    
-    # :metadata_key_value_pairs
-    i=0
-    while i < metadata.size do
-      Earth::MetadataKeyValuePair.create(:file_id => file_id,  :key => metadata.keys[i],  :value => metadata.values[i])
-      i+=1
-    end
-  end
-  
-  private
   def update_non_recursive(directory, options)
-  
-	@rspmeta = RspMetadata.new
 	
     directory_count = 1
 
@@ -347,7 +334,10 @@ private
           # Ken: End getting usage space
           
           Earth::File.benchmark("Creating file with name #{name}", Logger::DEBUG, !log_all_sql) do
-            directory.files.create(:name => name, :stat => stats[name])
+            new_file = directory.files.create(:name => name, :stat => stats[name])
+            
+            # save the new file metadata
+            Metadata.save_file_metadata(new_file.id)
 			
           end
           
@@ -375,10 +365,11 @@ private
             # If the file still exists
             if file_names.include?(file.name)
               logger.debug("checking for update on file #{file.name}")
-			  
-			  #adding code to acquire metadata - update
-			  save_file_metadata(file.id, @rspmeta.file_metaData(file))
-			  
+              
+              #adding code to acquire metadata and save it - update
+              logger.debug("update_non_recursive::Saving Metadata for file_id: #{file.id}")
+              Metadata.save_file_metadata(file.id)
+              
               # If the file has changed
               if file.stat != stats[file.name]
                 file.stat = stats[file.name]
@@ -399,6 +390,9 @@ private
               end
               # If the file has been deleted
             else
+              # delete this file metadata before deleting it
+              Metadata.delete_file_metadata(file.id)
+              
               Earth::Directory.benchmark("Removing file with name #{file.name}", Logger::DEBUG, !log_all_sql) do
                 directory.files.delete(file)
               end
@@ -425,7 +419,12 @@ private
         # If the directory has been deleted
         if !subdirectory_names.include?(dir.name)
           
+          #if you delete a directory, child_delete method will delete all files and directories under that folder
+          # we need to delete all files metadata first
+          
           Earth::Directory.benchmark("Removing directory with name #{dir.name}", Logger::DEBUG, !log_all_sql) do
+            #deleting all files_metadata for all files under this directory and its subdirectories
+            Metadata.delete_all_files_metadata_under_dir(dir)
             directory.child_delete(dir)
           end
         end

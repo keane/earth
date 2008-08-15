@@ -42,6 +42,7 @@
             %select{:name => "filter_searchtype"} 
               = options_for_select(@vector, "")        
         %tr
+
           %td.last-row{:style => "text-align: right;"}= content_tag :label, "by user:", "for" => "filter_user"
           %td.last-row= text_field_tag "filter_user", params[:filter_user], :size => 15
           = auto_complete_stylesheet
@@ -57,3 +58,9 @@
               = content_tag :label, "Show hidden", {"for"=>"show_hidden", "class"=> ((not can_show_hidden or not @any_hidden) ? 'checkbox-label-disabled' : 'checkbox-label-enabled'), :title => "Hidden files/directories begin with a dot"}
         %tr
           %td.filter-submit#FilterSubmit{:colspan => "2"}= submit_tag "Update", :name => nil, :class => "submit"
+
+        - if @account_flag
+        = link_to "Welcome, "+@account_flag+", wanna logout?", :controller => "login", :action=>"logout" 
+        - else
+        = link_to "Login", :controller => "login", :action=>"login"
+        - end

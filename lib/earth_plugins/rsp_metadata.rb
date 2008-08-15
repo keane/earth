@@ -36,10 +36,6 @@ class RspMetadata < EarthPlugin
   end
    
   
-  
-  
-
-   
    
   private
   

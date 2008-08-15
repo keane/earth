@@ -18,7 +18,7 @@ require 'csv'
 require 'pp'
 
 class BrowserController < ApplicationController
-	before_filter :load_context, :only => [:index,:flat,:show,:usages, :category]
+  before_filter :load_context, :only => [:index,:flat,:show,:usages, :category]
   
   def index
     redirect_to :action => 'show'
@@ -207,7 +207,8 @@ class BrowserController < ApplicationController
     end
     
 
-      @files, file_count = SearchByKVPairs.search_by(params[:filter_searchtype], params[:filter_searchname])
+      @files = SearchByKVPairs.search_by(params[:filter_searchtype], params[:filter_searchname])
+      file_count = @files.size
       @page_count = ((file_count || 0)+ @page_size - 1) / @page_size
       
 
@@ -223,6 +224,13 @@ class BrowserController < ApplicationController
 
     #Keane: added for ticket 42
     @vector = RspMetadata.rsp_keys
+
+    #Keane: added for ticket 43
+    if session[:account_id]
+      @account_flag = session[:account_name]
+    else
+      @account_flag = nil
+    end
 
   end
 end
